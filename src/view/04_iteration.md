@@ -113,11 +113,10 @@ view! {
 ```rust
 use leptos::prelude::*;
 
-// Iteration is a very common task in most applications.
-// So how do you take a list of data and render it in the DOM?
-// This example will show you the two ways:
-// 1) for mostly-static lists, using Rust iterators
-// 2) for lists that grow, shrink, or move items, using <For/>
+// 反復処理は、ほとんどのアプリケーションでよくある作業である
+// データのリストをDOMへレンダリングする2つの方法を示す
+// 1）ほぼ静的なリストではRustのイテレーターを使う
+// 2）項目が増減・移動するリストでは<For/>を使う
 
 #[component]
 fn App() -> impl IntoView {
@@ -132,19 +131,17 @@ fn App() -> impl IntoView {
     }
 }
 
-/// A list of counters, without the ability
-/// to add or remove any.
+/// 追加も削除もできないカウンターのリスト。
 #[component]
 fn StaticList(
-    /// How many counters to include in this list.
+    /// リストに含めるカウンターの数。
     length: usize,
 ) -> impl IntoView {
-    // create counter signals that start at incrementing numbers
+    // 連続する数値から始まるカウンターシグナルを作成する
     let counters = (1..=length).map(|idx| RwSignal::new(idx));
 
-    // when you have a list that doesn't change, you can
-    // manipulate it using ordinary Rust iterators
-    // and collect it into a Vec<_> to insert it into the DOM
+    // 変化しないリストは通常のRustイテレーターで操作し、
+    // Vec<_>へ収集してDOMへ挿入できる
     let counter_buttons = counters
         .map(|count| {
             view! {
@@ -159,59 +156,55 @@ fn StaticList(
         })
         .collect::<Vec<_>>();
 
-    // Note that if `counter_buttons` were a reactive list
-    // and its value changed, this would be very inefficient:
-    // it would rerender every row every time the list changed.
+    // `counter_buttons`がリアクティブなリストで値が変化する場合、
+    // リストが変わるたびに全行を再レンダリングするため非常に非効率になる
     view! {
         <ul>{counter_buttons}</ul>
     }
 }
 
-/// A list of counters that allows you to add or
-/// remove counters.
+/// カウンターを追加・削除できるリスト。
 #[component]
 fn DynamicList(
-    /// The number of counters to begin with.
+    /// 最初に用意するカウンターの数。
     initial_length: usize,
 ) -> impl IntoView {
-    // This dynamic list will use the <For/> component.
-    // <For/> is a keyed list. This means that each row
-    // has a defined key. If the key does not change, the row
-    // will not be re-rendered. When the list changes, only
-    // the minimum number of changes will be made to the DOM.
+    // この動的リストでは<For/>コンポーネントを使う
+    // <For/>はキー付きリストであり、各行にキーが定義される
+    // キーが変化しなければ行は再レンダリングされない
+    // リストが変化したとき、DOMには最小限の変更だけが加えられる
 
-    // `next_counter_id` will let us generate unique IDs
-    // we do this by simply incrementing the ID by one
-    // each time we create a counter
+    // `next_counter_id`を使って一意のIDを生成する
+    // カウンターを作成するたびにIDを1増やす
     let mut next_counter_id = initial_length;
 
-    // we generate an initial list as in <StaticList/>
-    // but this time we include the ID along with the signal
-    // see NOTE in add_counter below re: ArcRwSignal
+    // <StaticList/>と同様に初期リストを生成するが、
+    // 今回はシグナルとともにIDも含める
+    // ArcRwSignalについては下のadd_counter内の注意を参照
     let initial_counters = (0..initial_length)
         .map(|id| (id, ArcRwSignal::new(id + 1)))
         .collect::<Vec<_>>();
 
-    // now we store that initial list in a signal
-    // this way, we'll be able to modify the list over time,
-    // adding and removing counters, and it will change reactively
+    // 初期リストをシグナルへ保存する
+    // これにより、カウンターを追加・削除してリストを
+    // 時間とともに変更でき、リアクティブに反映される
     let (counters, set_counters) = signal(initial_counters);
 
     let add_counter = move |_| {
-        // create a signal for the new counter
-        // we use ArcRwSignal here, instead of RwSignal
-        // ArcRwSignal is a reference-counted type, rather than the arena-allocated
-        // signal types we've been using so far.
-        // When we're creating a collection of signals like this, using ArcRwSignal
-        // allows each signal to be deallocated when its row is removed.
+        // 新しいカウンターのシグナルを作成する
+        // ここではRwSignalではなくArcRwSignalを使う
+        // ArcRwSignalは、これまで使ってきたアリーナ割り当てのシグナル型ではなく、
+        // 参照カウント方式の型である
+        // このようなシグナルのコレクションでは、ArcRwSignalを使うことで
+        // 行の削除時に各シグナルも解放できる
         let sig = ArcRwSignal::new(next_counter_id + 1);
-        // add this counter to the list of counters
+        // カウンターをリストへ追加する
         set_counters.update(move |counters| {
-            // since `.update()` gives us `&mut T`
-            // we can just use normal Vec methods like `push`
+            // `.update()`は`&mut T`を返すので、
+            // `push`など通常のVecメソッドを使える
             counters.push((next_counter_id, sig))
         });
-        // increment the ID so it's always unique
+        // 常に一意になるようIDを増やす
         next_counter_id += 1;
     };
 
@@ -221,23 +214,21 @@ fn DynamicList(
                 "Add Counter"
             </button>
             <ul>
-                // The <For/> component is central here
-                // This allows for efficient, key list rendering
+                // ここでは<For/>コンポーネントが中心になる
+                // キー付きリストを効率的にレンダリングできる
                 <For
-                    // `each` takes any function that returns an iterator
-                    // this should usually be a signal or derived signal
-                    // if it's not reactive, just render a Vec<_> instead of <For/>
+                    // `each`はイテレーターを返す任意の関数を受け取る
+                    // 通常はシグナルまたは派生シグナルにする
+                    // リアクティブでなければ<For/>ではなくVec<_>をレンダリングする
                     each=move || counters.get()
-                    // the key should be unique and stable for each row
-                    // using an index is usually a bad idea, unless your list
-                    // can only grow, because moving items around inside the list
-                    // means their indices will change and they will all rerender
+                    // キーは各行に対して一意かつ安定している必要がある
+                    // リストが増えるだけの場合を除き、インデックスの使用は通常適切でない
+                    // リスト内で項目を移動するとインデックスが変化し、すべて再レンダリングされるためである
                     key=|counter| counter.0
-                    // `children` receives each item from your `each` iterator
-                    // and returns a view
+                    // `children`は`each`イテレーターの各項目を受け取り、ビューを返す
                     children=move |(id, count)| {
-                        // we can convert our ArcRwSignal to a Copy-able RwSignal
-                        // for nicer DX when moving it into the view
+                        // ArcRwSignalをCopy可能なRwSignalへ変換し、
+                        // ビューへmoveするときの開発体験を改善する
                         let count = RwSignal::from(count);
                         view! {
                             <li>
@@ -290,7 +281,7 @@ struct Counter {
 <ForEnumerate
     each=move || counters.get() // Same as <For/>
     key=|counter| counter.id    // Same as <For/>
-    // Provides the index as a signal and the child T
+    // インデックスをシグナルとして、子をTとして渡す
     children={move |index: ReadSignal<usize>, counter: Counter| {
         view! {
             <button>{move || index.get()} ". Value: " {move || counter.count.get()}</button>
