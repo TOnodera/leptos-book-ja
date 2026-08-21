@@ -167,7 +167,7 @@ let double_count = move || count.get() * 2;
 >
 > [`view`マクロの完全なドキュメントはこちらです](https://docs.rs/leptos/latest/leptos/macro.view.html)。
 
-```admonish sandbox title="Live example" collapsible=true
+```admonish sandbox title="実際に動く例" collapsible=true
 
 [クリックしてCodeSandboxを開きます。](https://codesandbox.io/p/devbox/2-dynamic-attributes-0-7-wddqfp?file=%2Fsrc%2Fmain.rs%3A1%2C1-58%2C1)
 
