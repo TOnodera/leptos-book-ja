@@ -114,8 +114,8 @@ fn ProgressBar(
 
 ### `default` props
 
-You can specify a default value other than `Default::default()` pretty simply
-with `#[prop(default = ...)`.
+`Default::default()`以外のデフォルト値も、
+`#[prop(default = ...)]`で簡単に指定できます。
 
 ```rust
 #[component]
@@ -426,25 +426,25 @@ view!{
 ```rust
 use leptos::prelude::*;
 
-// Composing different components together is how we build
-// user interfaces. Here, we'll define a reusable <ProgressBar/>.
-// You'll see how doc comments can be used to document components
-// and their properties.
+// 複数のコンポーネントを組み合わせてユーザーインターフェースを構築する
+// ここでは再利用可能な<ProgressBar/>を定義する
+// ドキュメントコメントでコンポーネントとpropsを
+// ドキュメント化する方法も示す
 
-/// Shows progress toward a goal.
+/// 目標に対する進捗を表示する。
 #[component]
 fn ProgressBar(
-    // Marks this as an optional prop. It will default to the default
-    // value of its type, i.e., 0.
+    // 省略可能なpropsとして指定する
+    // デフォルトは型のデフォルト値、つまり0になる
     #[prop(default = 100)]
-    /// The maximum value of the progress bar.
+    /// プログレスバーの最大値。
     max: u16,
-    // Will run `.into()` on the value passed into the prop.
+    // propsへ渡された値に対して`.into()`を実行する
     #[prop(into)]
     // `Signal<T>` is a wrapper for several reactive types.
-    // It can be helpful in component APIs like this, where we
-    // might want to take any kind of reactive value
-    /// How much progress should be displayed.
+    // あらゆる種類のリアクティブな値を受け取りたい
+    // このようなコンポーネントAPIで役立つ
+    /// 表示する進捗量。
     progress: Signal<i32>,
 ) -> impl IntoView {
     view! {
@@ -471,15 +471,15 @@ fn App() -> impl IntoView {
             "Click me"
         </button>
         <br/>
-        // If you have this open in CodeSandbox or an editor with
-        // rust-analyzer support, try hovering over `ProgressBar`,
-        // `max`, or `progress` to see the docs we defined above
+        // CodeSandboxまたはrust-analyzer対応エディターで開いている場合は、
+        // `ProgressBar`、`max`、`progress`へカーソルを合わせ、
+        // 上で定義したドキュメントを確認する
         <ProgressBar max=50 progress=count/>
-        // Let's use the default max value on this one
-        // the default is 100, so it should move half as fast
+        // こちらではデフォルトの最大値を使う
+        // デフォルトは100なので、半分の速さで進む
         <ProgressBar progress=count/>
-        // Signal::derive creates a Signal wrapper from our derived signal
-        // using double_count means it should move twice as fast
+        // Signal::deriveは派生シグナルからSignalラッパーを作成する
+        // double_countを使うため2倍の速さで進む
         <ProgressBar max=50 progress=Signal::derive(double_count)/>
     }
 }
