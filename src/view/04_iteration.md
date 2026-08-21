@@ -93,7 +93,7 @@ view! {
 
 例として、以下の`<DynamicList/>`コンポーネントを確認してください。
 
-```admonish sandbox title="Live example" collapsible=true
+```admonish sandbox title="実際に動く例" collapsible=true
 
 [クリックしてCodeSandboxを開きます。](https://codesandbox.io/p/devbox/4-iteration-0-7-dw4dfl?file=%2Fsrc%2Fmain.rs%3A1%2C1-159%2C1&workspaceId=478437f3-1f86-4b1e-b665-5c27a31451fb)
 
