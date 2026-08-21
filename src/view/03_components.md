@@ -406,7 +406,7 @@ view!{
 
 その他の例については、[`spread`の例](https://github.com/leptos-rs/leptos/blob/main/examples/spread/src/lib.rs)を参照してください。
 
-```admonish sandbox title="Live example" collapsible=true
+```admonish sandbox title="実際に動く例" collapsible=true
 
 [クリックしてCodeSandboxを開きます。](https://codesandbox.io/p/devbox/3-components-0-7-rkjn3j?file=%2Fsrc%2Fmain.rs%3A39%2C10)
 
