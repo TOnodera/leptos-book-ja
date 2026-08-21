@@ -1,0 +1,59 @@
+name: Leptos Book日本語版をGitHub Pagesへ公開
+
+on:
+  # mainへの反映時に公開する
+  push:
+    branches: ["main"]
+
+  # Actions画面からの手動実行にも対応する
+  workflow_dispatch:
+
+# GitHub Pagesへのデプロイに必要な権限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時に実行するデプロイは1つだけとし、実行中のデプロイは中断しない
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    name: mdBookをビルドして公開
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    env:
+      MDBOOK_VERSION: 0.4.36
+    steps:
+      - uses: actions/checkout@v4
+      - name: mdBookをインストール
+        run: |
+          curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf -y | sh
+          rustup update
+          cargo install --version ${MDBOOK_VERSION} mdbook
+
+      - name: mdbook-admonishをインストール
+        run: |
+          cargo install mdbook-admonish --vers "1.15.0" --locked
+          mdbook-admonish install ./
+
+      - name: GitHub Pagesを設定
+        id: pages
+        uses: actions/configure-pages@v4
+
+      - name: mdBookをビルド
+        run: mdbook build
+
+      - name: 公開用artifactをアップロード
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./book
+
+      - name: GitHub Pagesへデプロイ
+        id: deployment
+        uses: actions/deploy-pages@v4
