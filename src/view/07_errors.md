@@ -110,7 +110,7 @@ Not a number! Errors:
 
 エラーを修正するとエラーメッセージが消え、`<ErrorBoundary/>`で包んだコンテンツが再び表示されます。
 
-```admonish sandbox title="Live example" collapsible=true
+```admonish sandbox title="実際に動く例" collapsible=true
 
 [クリックしてCodeSandboxを開きます。](https://codesandbox.io/p/devbox/7-errors-0-7-qqywqz?file=%2Fsrc%2Fmain.rs%3A5%2C1-46%2C6&workspaceId=478437f3-1f86-4b1e-b665-5c27a31451fb)
 
@@ -138,19 +138,18 @@ fn App() -> impl IntoView {
         <label>
             "Type a number (or something that's not a number!)"
             <input type="number" on:input:target=move |ev| {
-                // when input changes, try to parse a number from the input
+                // 入力が変化したら、その値を数値としてパースする
                 set_value.set(ev.target().value().parse::<i32>())
             }/>
-            // If an `Err(_) had been rendered inside the <ErrorBoundary/>,
-            // the fallback will be displayed. Otherwise, the children of the
-            // <ErrorBoundary/> will be displayed.
+            // <ErrorBoundary/>内で`Err(_)`がレンダリングされた場合は
+            // fallbackが表示される。それ以外の場合は
+            // <ErrorBoundary/>の子要素が表示される
             <ErrorBoundary
-                // the fallback receives a signal containing current errors
+                // fallbackは現在のエラーを保持するシグナルを受け取る
                 fallback=|errors| view! {
                     <div class="error">
                         <p>"Not a number! Errors: "</p>
-                        // we can render a list of errors
-                        // as strings, if we'd like
+                        // 必要ならエラーの一覧を文字列としてレンダリングできる
                         <ul>
                             {move || errors.get()
                                 .into_iter()
@@ -163,11 +162,10 @@ fn App() -> impl IntoView {
             >
                 <p>
                     "You entered "
-                    // because `value` is `Result<i32, _>`,
-                    // it will render the `i32` if it is `Ok`,
-                    // and render nothing and trigger the error boundary
-                    // if it is `Err`. It's a signal, so this will dynamically
-                    // update when `value` changes
+                    // `value`は`Result<i32, _>`なので、`Ok`なら`i32`を
+                    // レンダリングし、`Err`なら何もレンダリングせず
+                    // エラーバウンダリを発動する。シグナルなので、
+                    // `value`の変化に応じて動的に更新される
                     <strong>{value}</strong>
                 </p>
             </ErrorBoundary>
